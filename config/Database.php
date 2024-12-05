@@ -1,20 +1,32 @@
-<?php 
+<?php
 class Database {
     private $host = "localhost";
     private $db_name = "eventure";
     private $username = "root";
     private $password = "";
-    public $conn;
+    private static $instance = null; 
+    private $pdo;
 
-    public function connect() {
-        $this->conn = null;
-        try {
-            $this->conn = new PDO("mysql:host=" . $this->host . ";dbname=" . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo "Connection Error: " . $e->getMessage();
-        }
-        return $this->conn;
+    private function __construct() { 
+        // Private constructor to prevent direct instantiation 
+        try { 
+            $this->pdo = new PDO("mysql:host={$this->host};dbname={$this->db_name}", $this->username, $this->password); 
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+        } 
+        catch (PDOException $e) { 
+            die("Database connection failed: " . $e->getMessage()); 
+        } 
+    }
+
+    public static function getInstance() { 
+        if (self::$instance === null) { 
+            self::$instance = new self(); 
+        } 
+        return self::$instance; 
+    }
+
+    public function getConnection() { 
+        return $this->pdo; 
     }
 }
 ?>
