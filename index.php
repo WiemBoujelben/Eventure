@@ -1,5 +1,5 @@
 <?php 
-// Define base path
+// Define base path ............
 define('BASE_PATH', __DIR__);
 
 // Start session
