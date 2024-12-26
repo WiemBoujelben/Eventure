@@ -52,7 +52,6 @@
                                 <th>Category</th>
                                 <th>Total Participants</th>
                                 <th>Pending Requests</th>
-                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -72,18 +71,13 @@
                                         <?php endif; ?>
                                     </td>
                                     <td>
-                                        <span class="badge bg-<?php echo $event['status'] === 'active' ? 'success' : 'danger'; ?>">
-                                            <?php echo ucfirst($event['status']); ?>
-                                        </span>
-                                    </td>
-                                    <td>
                                         <div class="btn-group" role="group">
                                             <a href="index.php?page=event&action=details&id=<?php echo $event['id']; ?>" 
-                                               class="btn btn-sm btn-info" title="View Details">
+                                               class="btn btn-sm btn-info" title="View Details">details
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             <a href="index.php?page=admin&action=manageParticipants&event_id=<?php echo $event['id']; ?>" 
-                                               class="btn btn-sm btn-primary" title="Manage Participants">
+                                               class="btn btn-sm btn-primary" title="Manage Participants">manage participants
                                                 <i class="fas fa-users"></i>
                                             </a>
                                         </div>
@@ -97,45 +91,6 @@
         </div>
     </div>
 </div>
-        <!-- Admins Section -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h2>Liste des Administrateurs</h2>
-            </div>
-            <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nom</th>
-                            <th>Email</th>
-                            <th>Date de création</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (isset($admins) && !empty($admins)): ?>
-                            <?php foreach($admins as $admin): ?>
-                            <tr>
-                                <td><?php echo htmlspecialchars($admin['id']); ?></td>
-                                <td><?php echo htmlspecialchars($admin['name']); ?></td>
-                                <td><?php echo htmlspecialchars($admin['email']); ?></td>
-                                <td><?php echo date('d/m/Y H:i', strtotime($admin['created_at'])); ?></td>
-                                <td>
-                                    <a href="index.php?page=superadmin&action=remove_admin_role&user_id=<?php echo $admin['id']; ?>" 
-                                       class="btn btn-danger btn-sm" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir retirer le rôle d\'administrateur à cet utilisateur ?');">Retirer le rôle admin</a>
-                                </td>
-                            </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="5" class="text-center">Aucun administrateur trouvé</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+
 
 <?php include_once dirname(__FILE__) . '/../shared/footer.php'; ?>

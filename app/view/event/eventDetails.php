@@ -29,52 +29,118 @@
             <div class="row mt-4">
                 <div class="col-md-6">
                     <p><strong>Date:</strong> <?php echo date('d/m/Y H:i', strtotime($event['date_time'])); ?></p>
-                    <p><strong>City:</strong> <?php echo htmlspecialchars($event['city']); ?></p>
-                    <p><strong>Category:</strong> <?php echo htmlspecialchars($event['category']); ?></p>
+                    <p><strong>Category:</strong> <?php echo ucfirst(htmlspecialchars($event['category'])); ?></p>
+                    <p><strong>Location:</strong> <?php echo htmlspecialchars($event['city']); ?></p>
                 </div>
+                <?php if (!empty($event['photo'])): ?>
                 <div class="col-md-6">
-                    <p><strong>Organizer:</strong> <?php echo htmlspecialchars($event['organizer_name']); ?></p>
-                    <p><strong>Status:</strong> <?php echo htmlspecialchars($event['status']); ?></p>
-                    <?php if (!empty($event['photo'])): ?>
-                        <img src="<?php echo htmlspecialchars($event['photo']); ?>" alt="Event Photo" class="img-fluid mt-3">
-                    <?php endif; ?>
+                    <img src="<?php echo htmlspecialchars($event['photo']); ?>" class="img-fluid rounded" alt="Event photo">
                 </div>
+                <?php endif; ?>
             </div>
 
-            <?php if (isset($_SESSION['user'])): ?>
-                <?php if ($participationStatus === false): ?>
-                    <form action="index.php?page=event&action=register&id=<?php echo $event['id']; ?>" method="POST" class="mt-4">
-                        <button type="submit" class="btn btn-primary">Register for Event</button>
-                    </form>
-                <?php elseif ($participationStatus === 'pending'): ?>
-                    <div class="alert alert-info mt-4">
-                        Your registration request is pending approval.
+            <!-- Approved Participants Section -->
+            <div class="mt-4">
+                <h3>Approved Participants</h3>
+                <?php if (!empty($approvedParticipants)): ?>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>User ID</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                    <th>Rating</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($approvedParticipants as $participant): ?>
+                                    <tr>
+                                        <td><?php echo htmlspecialchars($participant['name']); ?></td>
+                                        <td><?php echo htmlspecialchars($participant['user_id']); ?></td>
+                                        <td><?php echo date('d/m/Y H:i', strtotime($participant['registration_date'])); ?></td>
+                                        <td><span class="badge bg-success"><?php echo htmlspecialchars($participant['status']); ?></span></td>
+                                        <td>
+                                            <div class="star-rating" data-participant-id="<?php echo $participant['user_id']; ?>">
+                                                <span class="star" data-value="1">&#9733;</span>
+                                                <span class="star" data-value="2">&#9733;</span>
+                                                <span class="star" data-value="3">&#9733;</span>
+                                                <span class="star" data-value="4">&#9733;</span>
+                                                <span class="star" data-value="5">&#9733;</span>
+                                            </div>
+                                            <div class="rating-display">
+                                                <span class="average-rating">
+                                                    <?php echo number_format($participant['average_rating'], 1); ?>
+                                                </span>
+                                            </div>
+                                            <form action="index.php?page=event&action=submitRating" method="POST">
+                                                <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($event['id']); ?>">
+                                                <input type="hidden" name="participant_id" value="<?php echo htmlspecialchars($participant['user_id']); ?>">
+                                                <input type="hidden" name="rating" class="rating-input">
+                                                <button type="submit" class="btn btn-primary btn-sm mt-1">Rate</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
                     </div>
-                <?php elseif ($participationStatus === 'approved'): ?>
-                    <div class="alert alert-success mt-4">
-                        You are registered for this event!
-                    </div>
-                <?php elseif ($participationStatus === 'rejected'): ?>
-                    <div class="alert alert-danger mt-4">
-                        Your registration request was not approved.
-                    </div>
+                <?php else: ?>
+                    <p class="text-muted">No approved participants yet.</p>
                 <?php endif; ?>
+            </div>
 
-                <?php if (isset($_SESSION['user']['role']) && 
-                        ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'superadmin') && 
-                        ($_SESSION['user']['id'] === $event['supervisor_id'] || $_SESSION['user']['role'] === 'superadmin')): ?>
-                    <div class="mt-4">
-                        <a href="index.php?page=event&action=manageParticipants&id=<?php echo $event['id']; ?>" 
-                           class="btn btn-primary">Manage Participants</a>
-                    </div>
+            <!-- Action Buttons -->
+            <div class="mt-4">
+            <form action="index.php?page=event&action=register" method="POST">
+                    <input type="hidden" name="event_id" value="<?php echo htmlspecialchars($event['id']); ?>">
+                    <button type="submit" class="btn btn-primary">Register</button>
+                </form>
+                <?php if (isset($_SESSION['user'])): ?>
+                    <?php if ($_SESSION['user']['role'] === 'admin' && $_SESSION['user']['id'] == $event['supervisor_id']): ?>
+                        <a href="index.php?page=event&action=Edit&id=<?php echo $event['id']; ?>" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Edit Event
+                        </a>
+                        <a href="index.php?page=event&action=Delete&id=<?php echo $event['id']; ?>" 
+                           class="btn btn-danger"
+                           onclick="return confirm('Are you sure you want to delete this event?');">
+                            <i class="fas fa-trash"></i> Delete Event
+                        </a>
+                    <?php endif; ?>
                 <?php endif; ?>
-            <?php else: ?>
-                <div class="alert alert-warning mt-4">
-                    Please <a href="index.php?page=login">login</a> to register for this event.
-                </div>
-            <?php endif; ?>
+                <a href="index.php?page=events" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Events
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
+<style>
+    .star {
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.star-rating').forEach(starContainer => {
+            const stars = starContainer.querySelectorAll('.star');
+            const ratingInput = starContainer.parentElement.querySelector('.rating-input');
+            
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const value = star.getAttribute('data-value');
+                    ratingInput.value = value;
+                    
+                    // Highlight selected stars
+                    stars.forEach(s => {
+                        s.style.color = s.getAttribute('data-value') <= value ? '#FFD700' : '#000';
+                    });
+                });
+            });
+        });
+    });
+</script>
 <?php include_once dirname(__FILE__) . '/../shared/footer.php'; ?>

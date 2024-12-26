@@ -52,13 +52,13 @@
                                     <td><?php echo htmlspecialchars($participant['email']); ?></td>
                                     <td><?php echo date('d/m/Y H:i', strtotime($participant['registration_date'])); ?></td>
                                     <td>
-                                        <span class="badge bg-<?php 
-                                            echo $participant['status'] === 'approved' ? 'success' : 
-                                                ($participant['status'] === 'pending' ? 'warning' : 'danger'); 
-                                        ?>">
-                                            <?php echo ucfirst($participant['status']); ?>
-                                        </span>
-                                    </td>
+                                    <span class="badge <?php 
+                                        echo $participant['status'] === 'approved' ? 'bg-success' : 
+                                            ($participant['status'] === 'rejected' ? 'bg-danger' : 'bg-warning');
+                                    ?>">
+                                        <?php echo ucfirst($participant['status']); ?>
+                                    </span>
+                                </td>
                                     <td>
                                         <?php if ($participant['status'] === 'pending'): ?>
                                             <form action="index.php?page=admin&action=updateParticipantStatus" method="POST" class="d-inline">

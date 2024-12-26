@@ -1,5 +1,5 @@
 <?php
-include_once __DIR__ . '/../shared/header.php';
+include_once dirname(__FILE__) . '/../shared/header.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -39,24 +39,6 @@ include_once __DIR__ . '/../shared/header.php';
                 <h2>Demandes d'administrateur</h2>
             </div>
             <div class="card-body">
-                <?php if (isset($_SESSION['success'])): ?>
-                    <div class="alert alert-success">
-                        <?php 
-                        echo $_SESSION['success'];
-                        unset($_SESSION['success']);
-                        ?>
-                    </div>
-                <?php endif; ?>
-
-                <?php if (isset($_SESSION['error'])): ?>
-                    <div class="alert alert-danger">
-                        <?php 
-                        echo $_SESSION['error'];
-                        unset($_SESSION['error']);
-                        ?>
-                    </div>
-                <?php endif; ?>
-
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -120,10 +102,10 @@ include_once __DIR__ . '/../shared/header.php';
                                 <td><?php echo htmlspecialchars($u->email); ?></td>
                                 <td><?php echo htmlspecialchars($u->role); ?></td>
                                 <td> 
-                                    <a href="index.php?page=superadmin&action=viewUser&id=<?php echo $u->id; ?>" 
+                                    <a href="index.php?page=view_user&id=<?php echo $u->id; ?>" 
                                        class="btn btn-warning btn-sm">Voir détails</a>	
                                     <?php if ($u->role !== 'superadmin'): ?>
-                                    <a href="index.php?page=superadmin&action=deleteUser&id=<?php echo $u->id; ?>" 
+                                    <a href="index.php?page=delete_user&id=<?php echo $u->id; ?>" 
                                        class="btn btn-danger btn-sm" 
                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">Supprimer</a>
                                     <?php endif; ?>
@@ -141,50 +123,62 @@ include_once __DIR__ . '/../shared/header.php';
         </div>
 
         <!-- Reports Section -->
-        <div class="card">
-            <div class="card-header">
-                <h2>Liste des Signalements</h2>
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Liste des Signalements</h5>
             </div>
             <div class="card-body">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Signaleur</th>
-                            <th>Signalé</th>
-                            <th>Raisons</th>
-                            <th>Status</th>
-                            <th>Actions</th> 
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (isset($reports) && !empty($reports)): ?>
-                            <?php foreach($reports as $r): ?>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($r->id); ?></td>
-                                <td><?php echo htmlspecialchars($r->reporter_id); ?></td>
-                                <td><?php echo htmlspecialchars($r->reported_id); ?></td>
-                                <td><?php echo htmlspecialchars($r->reason); ?></td>
-                                <td><?php echo htmlspecialchars($r->status); ?></td>
-                                <td> 
-                                    <a href="index.php?page=superadmin&action=viewReport&id=<?php echo $r->id; ?>" 
-                                       class="btn btn-warning btn-sm">Voir détails</a>
-                                    <a href="index.php?page=superadmin&action=deleteReport&id=<?php echo $r->id; ?>" 
-                                       class="btn btn-danger btn-sm" 
-                                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce signalement ?');">Supprimer</a>
-                                </td>
+                                <th>ID</th>
+                                <th>Signaleur</th>
+                                <th>Signalé</th>
+                                <th>Raisons</th>
+                                <th>Nombre de Signalements</th>
+                                <th>Actions</th>
                             </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center">Aucun signalement trouvé</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+    <?php 
+    $reports = $superAdminController->getReports();
+    foreach ($reports as $report): ?>
+        <tr>
+            <td><?php echo htmlspecialchars($report['id']); ?></td>
+            <td><?php echo htmlspecialchars($report['reporter_name']); ?></td>
+            <td><?php echo htmlspecialchars($report['reported_name']); ?></td>
+            <td>
+                <button type="button" class="btn btn-sm btn-info" data-bs-toggle="modal" 
+                        data-bs-target="#reasonModal<?php echo $report['id']; ?>">
+                    Voir Raison
+                </button>
+            </td>
+            <td>
+                <span class="badge bg-danger">
+                    <?php echo htmlspecialchars($report['report_count']); ?>
+                </span>
+            </td>
+            <td>
+                <div class="btn-group" role="group">
+                    <a href="index.php?page=superadmin&action=delete_user&id=<?php echo $report['reported_id']; ?>" 
+                       class="btn btn-sm btn-danger"
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.');">
+                        Supprimer Utilisateur
+                    </a>
+                </div>
+            </td>
+        </tr>
+        <!-- Keep the modal code as is -->
+    <?php endforeach; ?>
+</tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
+
+    <?php include_once dirname(__FILE__) . '/../shared/footer.php'; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

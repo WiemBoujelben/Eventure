@@ -20,6 +20,11 @@ class AdminControler {
         // Fetch admin's events
         $events = $this->model->getAdminEvents($_SESSION['user']['id']);
 
+        // Get pending participants count for each event
+        foreach ($events as &$event) {
+            $event['pending_count'] = $this->model->getPendingParticipantsCount($event['id'] ?? 0);
+        }
+
         // Include the dashboard view
         include __DIR__ . '/../view/admin/dashboard.php';
     }

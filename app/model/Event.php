@@ -18,6 +18,9 @@ class Event {
         $database = Database::getInstance();
         $this->conn = $database->getConnection();
     }
+    public function getConnection() {
+        return $this->conn;
+    }
 
     public function create() {
         $query = "INSERT INTO " . $this->table . "
@@ -114,14 +117,24 @@ class Event {
     }
 
     public function delete() {
-        $query = "DELETE FROM " . $this->table . " WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':id', $this->id);
-        
-        if($stmt->execute()) {
-            return true;
+        try {
+            $query = "DELETE FROM " . $this->table . " WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':id', $this->id);
+            
+            $result = $stmt->execute();
+            
+            if ($result) {
+                error_log("Event {$this->id} deleted successfully");
+                return true;
+            } else {
+                error_log("Failed to delete event {$this->id}");
+                return false;
+            }
+        } catch (PDOException $e) {
+            error_log("Database error during event deletion: " . $e->getMessage());
+            return false;
         }
-        return false;
     }
 
     public function subscribe($userId, $eventId) {
@@ -159,6 +172,47 @@ class Event {
         $stmt->execute();
         
         return $stmt->fetchColumn() > 0;
+    }
+
+    public function getApprovedParticipants($eventId) {
+        try {
+            $query = "SELECT ep.user_id, u.name, ep.registration_date, ep.status, IFNULL(AVG(r.rating), 0) as average_rating
+                      FROM event_participants ep 
+                      JOIN users u ON ep.user_id = u.id
+                      LEFT JOIN ratings r ON ep.user_id = r.participant_id
+                      WHERE ep.event_id = :event_id 
+                      AND ep.status = 'approved' 
+                      GROUP BY ep.user_id, u.name
+                      ORDER BY ep.registration_date DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':event_id', $eventId);
+            $stmt->execute();
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            // Return empty array if there's an error
+            return array();
+        }
+    }
+
+    public function addParticipantRequest($eventId, $userId) {
+        $query = "INSERT INTO event_participants (event_id, user_id, status) VALUES (?, ?, 'pending')";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$eventId, $userId]);
+    }
+    public function addRating($eventId, $participantId, $raterId, $rating) {
+        try {
+            $query = "INSERT INTO ratings (event_id, participant_id, rater_id, rating) VALUES (:event_id, :participant_id, :rater_id, :rating)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':event_id', $eventId);
+            $stmt->bindParam(':participant_id', $participantId);
+            $stmt->bindParam(':rater_id', $raterId);
+            $stmt->bindParam(':rating', $rating);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error adding rating: " . $e->getMessage());
+            throw $e;
+        }
     }
 }
 ?>

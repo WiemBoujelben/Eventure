@@ -35,6 +35,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="index.php?page=events">Events</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.php?page=reporting">Reporting</a>
+                    </li>
                     <?php if (!isset($_SESSION['user'])): ?>
                         <li class="nav-item">
                             <a class="nav-link" href="index.php?page=login">Login</a>
@@ -49,7 +52,7 @@
                                     <a class="nav-link" href="index.php?page=superadmin&action=dashboard">SuperAdmin Dashboard</a>
                                 </li>
                             <?php endif; ?>
-                            <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'superadmin'): ?>
+                            <?php if ($_SESSION['user']['role'] === 'admin'): ?>
                                 <li class="nav-item">
                                     <a class="nav-link" href="index.php?page=admin&action=dashboard">Admin Dashboard</a>
                                 </li>
@@ -62,9 +65,13 @@
                                     <a class="nav-link" href="index.php?page=request_admin">Request Admin Access</a>
                                 </li>
                             <?php endif; ?>
-                            <li class="nav-item">
-                                <a class="nav-link" href="index.php?page=profile">Profile</a>
-                            </li>
+                            <?php if (isset($_SESSION['user'])): ?>
+    <li class="nav-item">
+        <a class="nav-link" href="index.php?page=profile">
+            <?php echo htmlspecialchars($_SESSION['user']['name']); ?> Profile
+        </a>
+    </li>
+<?php endif; ?>
                             <li class="nav-item">
                                 <a class="nav-link" href="index.php?page=logout">Logout</a>
                             </li>

@@ -77,7 +77,7 @@ class SuperAdminModel {
         $query = "SELECT * FROM users WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function findReport($id) {
@@ -104,5 +104,16 @@ class SuperAdminModel {
         $query = "UPDATE users SET role = 'user' WHERE id = ?";
         $stmt = $this->conn->prepare($query);
         return $stmt->execute([$userId]);
+    }
+
+    public function getUserEvents($userId) {
+        $query = "SELECT * FROM events WHERE supervisor_id = ?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$userId]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getConnection() {
+        return $this->conn;
     }
 }

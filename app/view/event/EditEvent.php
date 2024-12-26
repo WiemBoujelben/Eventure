@@ -38,7 +38,7 @@ $baseUrl = '';
                         <h3 class="mb-0">Edit Event</h3>
                     </div>
                     <div class="card-body">
-                        <form action="index.php?action=Edit&id=<?php echo $event['id']; ?>" method="POST" enctype="multipart/form-data">
+                        <form action="index.php?page=event&action=Edit&id=<?php echo $event['id']; ?>" method="POST" enctype="multipart/form-data">
                             <div class="mb-3">
                                 <label for="title" class="form-label">Event Title</label>
                                 <input type="text" class="form-control" id="title" name="title" value="<?php echo htmlspecialchars($event['title']); ?>" required>

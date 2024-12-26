@@ -30,7 +30,7 @@ class EventModel {
             $event['date_time'],
             $event['city'],
             $event['category'],
-            isset($event['photo']) ? $event['photo'] : null,
+            $event['photo'],
             $event['supervisor_id']
         ]);
     }
@@ -80,5 +80,26 @@ class EventModel {
         $stmt = $this->conn->prepare($query);
         $stmt->execute([$organizerId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function addParticipantRequest($eventId, $userId) {
+        $query = "INSERT INTO event_participants(event_id, user_id, status) VALUES (?, ?, 'pending')";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$eventId, $userId]);
+    }
+
+    public function addRating($eventId, $participantId, $raterId, $rating) {
+        try {
+            $query = "INSERT INTO ratings (event_id, participant_id, rater_id, rating) VALUES (:event_id, :participant_id, :rater_id, :rating)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':event_id', $eventId);
+            $stmt->bindParam(':participant_id', $participantId);
+            $stmt->bindParam(':rater_id', $raterId);
+            $stmt->bindParam(':rating', $rating);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("Error adding rating: " . $e->getMessage());
+            throw $e;
+        }
     }
 }
