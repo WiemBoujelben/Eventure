@@ -25,9 +25,11 @@ include_once dirname(__FILE__) . '/../shared/header.php';
         <div class="card-body">
             <div class="row">
                 <div class="col-md-4 text-center mb-4">
-                <form action="request_admin.php" method="POST">
-    <button type="submit">Request Admin Status</button>
-</form>
+                    <?php if ($user['role'] === 'user'): ?>
+                        <form action="index.php?page=request_admin" method="POST" class="mb-3">
+                            <button type="submit" class="btn btn-secondary">Request Admin Status</button>
+                        </form>
+                    <?php endif; ?>
                     <div class="profile-photo-container mb-3">
                         <?php if (isset($user['photo']) && !empty($user['photo'])) : ?>
                             <img src="<?php echo htmlspecialchars($user['photo']); ?>" alt="Profile Photo" class="img-fluid rounded-circle" style="width: 200px; height: 200px; object-fit: cover;">

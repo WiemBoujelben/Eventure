@@ -26,7 +26,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="index.php">Eventure</a>
+            <a class="navbar-brand" href="index.php?page=events">Eventure</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -43,12 +43,32 @@
                             <a class="nav-link" href="index.php?page=register">Register</a>
                         </li>
                     <?php else: ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=profile">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.php?page=logout">Logout</a>
-                        </li>
+                        <?php if (isset($_SESSION['user']['role'])): ?>
+                            <?php if ($_SESSION['user']['role'] === 'superadmin'): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="index.php?page=superadmin&action=dashboard">SuperAdmin Dashboard</a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($_SESSION['user']['role'] === 'admin' || $_SESSION['user']['role'] === 'superadmin'): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="index.php?page=admin&action=dashboard">Admin Dashboard</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="index.php?page=event&action=create_event">Create Event</a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if ($_SESSION['user']['role'] === 'user'): ?>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="index.php?page=request_admin">Request Admin Access</a>
+                                </li>
+                            <?php endif; ?>
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php?page=profile">Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="index.php?page=logout">Logout</a>
+                            </li>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </ul>
             </div>

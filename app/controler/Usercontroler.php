@@ -164,5 +164,13 @@ class UserController {
             exit();
         }
     }
+
+    public function requestAdmin() {
+        $userId = $_SESSION['user_id']; // Assuming user ID is stored in session
+        $query = "INSERT INTO admin_requests (user_id) VALUES (:user_id)";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->execute(['user_id' => $userId]);
+        // Redirect or show success message
+    }
 }
 ?>
